@@ -1,5 +1,5 @@
 # Runtime. Install the package itself with: pip install -e .
-tensorflow>=2.16,<2.20
+tensorflow>=2.16,<2.22
 numpy
 opencv-python-headless
 scikit-learn
