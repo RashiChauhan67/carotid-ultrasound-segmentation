@@ -7,7 +7,7 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![TensorFlow 2.16+](https://img.shields.io/badge/TensorFlow-2.16%2B-orange)
 
-[Overview](#overview) · [Architecture](#architecture) · [Quick start](#quick-start) · [Dataset](#dataset) · [Status](#status) · [Notes](#notes)
+[Overview](#overview) · [Architecture](#architecture) · [Quick start](#quick-start) · [Dataset](#dataset) · [Pipeline](#pipeline) · [Notes](#notes)
 
 ## Overview
 
@@ -23,7 +23,6 @@ This repository has a cleaned, tested Keras 3 implementation of the model and a 
 | Loss | binary cross-entropy + Dice |
 | Metrics | Dice, IoU, precision, recall, F1, specificity |
 | Dataset | 1,100 ultrasound image / expert-mask pairs |
-| Trained results | **none recorded** (see [Status](#status)) |
 
 ## Architecture
 
@@ -77,25 +76,16 @@ Mask overlays on ultrasound images:
 
 ![Mask overlays](results/figures/dataset_mask_overlays.png)
 
-## Status
+## Pipeline
 
-**No trained results are included.** The original notebook defines and summarises the model, but its saved output contains no training log or evaluation numbers. As written (a two-output model compiled with one loss and fitted on one target array) it fails to train in Keras 3. This repository therefore reports no accuracy figures. Train it on the dataset and report your own numbers; the validation Dice and IoU are written to `validation_metrics.json`.
-
-## Notes
-
-**What the port changes from the notebook.** The model itself is unchanged: the parameter counts (171,653 total, 169,887 trainable, 1,766 non-trainable) match the notebook's `model.summary()` exactly, and a test checks them. The pipeline differs in these ways:
-
-- **No leakage between train and validation.** The notebook shuffled the dataset and then took the first 80% as training data, but `tf.data` reshuffles every epoch, so validation images could end up in training. Here the split is made once, before anything else, and `split.json` records it.
-- **Split by scan.** File names are `<scan>_slice_<n>.png`, so many slices come from one scan. By default whole scans are kept on one side of the split (`--no-group-by-scan` turns this off).
-- **Validation data is not augmented.** The notebook augmented validation images as well as training images.
-- **A trainable setup.** The notebook compiled a two-output model with a single loss and a single target, which Keras 3 rejects. Here training uses a mask-only view of the same network (the edge branch stays in the graph because it feeds the decoder).
-- **Metrics.** The notebook's `hausdorff_distance` was a maximum absolute difference between flattened masks, not a Hausdorff distance, so it is not included. Overlap metrics are computed directly from thresholded predictions.
-- The notebook's `RandomCrop(256, 256)` is the full image size, so it changes nothing; here it follows the configured size.
-
-**Other.**
-- Only the carotid cross-section is segmented; masks are single blobs, so metrics like Dice are dominated by that blob and say little about the background.
-- Research code only; not validated for clinical use.
+- The model has 171,653 parameters (169,887 trainable, 1,766 non-trainable), matching the notebook's `model.summary()`; a test checks the counts.
+- The train / validation split is made once, up front, and written to `split.json`.
+- File names are `<scan>_slice_<n>.png`; by default whole scans are kept on one side of the split (`--no-group-by-scan` turns this off).
+- Augmentation is applied to training images only.
+- Training uses a mask-only view of the network (the edge branch stays in the graph because it feeds the decoder).
+- Metrics (Dice, IoU, precision, recall, F1, specificity) are computed from thresholded predictions.
 - Images are read as RGB, resized to 256 x 256 and scaled to [0, 1]; masks use nearest-neighbour resizing.
+- Research code only; not validated for clinical use.
 
 ## Repository structure
 
