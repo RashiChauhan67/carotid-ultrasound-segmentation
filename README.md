@@ -7,7 +7,7 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![TensorFlow 2.16+](https://img.shields.io/badge/TensorFlow-2.16%2B-orange)
 
-[Overview](#overview) · [Architecture](#architecture) · [Quick start](#quick-start) · [Dataset](#dataset) · [Pipeline](#pipeline) · [Notes](#notes)
+[Overview](#overview) · [Architecture](#architecture) · [Quick start](#quick-start) · [Dataset](#dataset) · [Pipeline](#pipeline)
 
 ## Overview
 
